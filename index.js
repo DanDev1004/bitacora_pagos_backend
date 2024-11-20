@@ -5,6 +5,11 @@ const server = http.createServer(app);
 const logger = require('morgan');
 const cors = require('cors');
 
+
+//IMPORTANDO RUTAS
+const usersRoutes = require('./routes/userRoutes');
+
+
 const port = process.env.PORT || 3000;
 
 app.use(logger('dev'));
@@ -18,10 +23,20 @@ app.disable('x-powered-by');
 
 app.set('port', port);
 
-server.listen(3000, 'localhost', function(){
+
+
+
+//LLAMADO DE LAS RUTAS
+usersRoutes(app);
+
+
+
+
+
+
+server.listen(3000, '192.168.1.3' || 'localhost', function(){
     console.log('Servidor corriendo en el puerto: '+port+' => iniciando...')
 })
-
 
 // ERROR HANDLER
 app.use((err, req, res, next) => {
