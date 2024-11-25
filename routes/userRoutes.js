@@ -7,7 +7,7 @@ module.exports = (app) => {
 
     app.post('/api/users/crear', usersController.crear);
     //app.post('/api/users/createWithImage', upload.array('image', 1), usersController.registerWithImage);
-    //app.post('/api/users/login', usersController.login);
+    app.post('/api/users/login', usersController.login);
     
 
     //app.put('/api/users/update', passport.authenticate('jwt', {session: false}) , upload.array('image', 1), usersController.updateWithImage);

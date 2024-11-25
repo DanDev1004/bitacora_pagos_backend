@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const logger = require('morgan');
 const cors = require('cors');
+const passport = require('passport');
 
 
 //IMPORTANDO RUTAS
@@ -19,6 +20,11 @@ app.use(express.urlencoded({
 }));
 
 app.use(cors());
+app.use(passport.initialize());
+app.use(passport.session());
+
+require('./config/passport')(passport);
+
 app.disable('x-powered-by');
 
 app.set('port', port);
@@ -34,7 +40,7 @@ usersRoutes(app);
 
 
 
-server.listen(3000, '192.168.1.3' || 'localhost', function(){
+server.listen(3000, '192.168.1.7' || 'localhost', function(){
     console.log('Servidor corriendo en el puerto: '+port+' => iniciando...')
 })
 
