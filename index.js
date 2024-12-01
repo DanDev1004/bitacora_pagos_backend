@@ -40,7 +40,7 @@ usersRoutes(app);
 
 
 
-server.listen(3000, '192.168.1.7' || 'localhost', function(){
+server.listen(3000, '192.168.1.12' || 'localhost', function(){
     console.log('Servidor corriendo en el puerto: '+port+' => iniciando...')
 })
 
