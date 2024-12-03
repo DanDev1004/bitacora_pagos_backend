@@ -52,6 +52,19 @@ User.crear = async (usuario, result) => {
 
 }
 
+User.subirImagen = (urlImagen, userId, result) => {
+    const sql = `UPDATE USUARIO SET IMAGEN = ? WHERE ID = ?`;
+
+    db.query(sql, [urlImagen, userId], (err, res) => {
+        if (err) {
+            console.log("Error al actualizar la imagen: ", err);
+            result(err, null);
+            return;
+        }
+        result(null, res);
+    });
+};
+
 
 User.obtenerPorId = (id, result) => {
 

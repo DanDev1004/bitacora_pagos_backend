@@ -2,12 +2,13 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
-
+const storage = require('../utils/cloud_storage');
+const db = require('../config/config');
 
 module.exports = {
     crear(req, res) {
 
-        const user = req.body; 
+        const user = req.body;
         User.crear(user, (err, data) => {
 
             if (err) {
@@ -28,13 +29,68 @@ module.exports = {
 
     },
 
+    async crearConImagen(req, res) {
+        const user = JSON.parse(req.body.user);
+        const files = req.files;
+
+        User.crear(user, async (err, data) => {
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Error al registrar usuario',
+                    error: err
+                });
+            }
+            // Si el usuario se crea con éxito en la base de datos, subimos la imagen
+            if (files.length > 0) {
+                const path = `image_${Date.now()}`;
+                const url = await storage(files[0], path);
+
+                if (url != undefined && url != null) {
+                    user.IMAGEN = url;
+                    // Actualizar el usuario con la URL de la imagen 
+                    const updateSql = ` UPDATE USUARIO SET IMAGEN = ? WHERE ID = ? `;
+
+                    db.query(updateSql, [url, data], (updateErr, updateRes) => {
+
+                        if (updateErr) {
+                            return res.status(501).json({
+                                success: false,
+                                message: 'Error al actualizar la imagen del usuario',
+                                error: updateErr
+                            });
+                        }
+                        user.ID = `${data}`;
+                        const token = jwt.sign({ id: user.id, email: user.email }, keys.secretOrKey, {});
+                        user.session_token = `JWT ${token}`;
+
+                        return res.status(201).json({
+                            success: true,
+                            message: 'Se ha registrado exitosamente',
+                            data: user
+                        });
+                    });
+                }
+            } else {
+                user.ID = `${data}`;
+                const token = jwt.sign({ id: user.id, email: user.email }, keys.secretOrKey, {});
+                user.session_token = `JWT ${token}`;
+                return res.status(201).json({
+                    success: true,
+                    message: 'Se ha registrado exitosamente',
+                    data: user
+                });
+            }
+        });
+    },
+
 
     login(req, res) {
         const email = req.body.email;
         const password = req.body.password;
 
         User.obtenerPorEmail(email, async (err, myUser) => {
-            
+
             console.log('ERROR: ', err);
             console.log('USUARIO: ', myUser);
 
@@ -56,7 +112,7 @@ module.exports = {
             const isPasswordValid = await bcrypt.compare(password, myUser.PASSWORD_USER);
 
             if (isPasswordValid) {
-                const token = jwt.sign({id: myUser.id, email: myUser.email}, keys.secretOrKey, {});
+                const token = jwt.sign({ id: myUser.id, email: myUser.email }, keys.secretOrKey, {});
 
                 const data = {
                     id: `${myUser.ID}`,
@@ -72,12 +128,12 @@ module.exports = {
                 return res.status(201).json({
                     success: true,
                     message: 'El usuario fue autenticado',
-                    data: data 
+                    data: data
                 });
 
             }
             else {
-                return res.status(401).json({ 
+                return res.status(401).json({
                     success: false,
                     message: 'El password es incorrecto'
                 });
@@ -85,6 +141,6 @@ module.exports = {
 
         });
 
-    },
+    }
 }
 

@@ -1,12 +1,12 @@
 const usersController = require('../controllers/usersController');
 //const passport = require('passport');
 
-module.exports = (app) => {
+module.exports = (app, upload) => {
 
     //app.get('/api/users/findDeliveryMen', passport.authenticate('jwt', { session: false }), usersController.findDeliveryMen);
 
     app.post('/api/users/crear', usersController.crear);
-    //app.post('/api/users/createWithImage', upload.array('image', 1), usersController.registerWithImage);
+    app.post('/api/users/crear-con-imagen', upload.array('image', 1), usersController.crearConImagen);
     app.post('/api/users/login', usersController.login);
     
 
