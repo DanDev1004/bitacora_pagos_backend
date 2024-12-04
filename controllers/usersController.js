@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Rol = require('../models/rol');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
@@ -64,11 +65,22 @@ module.exports = {
                         const token = jwt.sign({ id: user.id, email: user.email }, keys.secretOrKey, {});
                         user.session_token = `JWT ${token}`;
 
-                        return res.status(201).json({
-                            success: true,
-                            message: 'Se ha registrado exitosamente',
-                            data: user
-                        });
+                        //Rol espectador por defecto
+                        Rol.crear(user.ID, 3, (err, data)=>{
+                            if (err) {
+                                return res.status(501).json({
+                                    success: false,
+                                    message: 'Error al aplicar rol de usuario',
+                                    error: err
+                                });
+                            }
+
+                            return res.status(201).json({
+                                success: true,
+                                message: 'Se ha registrado exitosamente',
+                                data: user
+                            });
+                        }); 
                     });
                 }
             } else {
@@ -80,6 +92,7 @@ module.exports = {
                     message: 'Se ha registrado exitosamente',
                     data: user
                 });
+
             }
         });
     },
@@ -121,8 +134,8 @@ module.exports = {
                     email: myUser.EMAIL,
                     telefono: myUser.TELEFONO,
                     imagen: myUser.IMAGEN,
-                    session_token: `JWT ${token}`
-                    //roles: JSON.parse(myUser.roles)
+                    session_token: `JWT ${token}`,
+                    roles: myUser.ROLES
                 }
 
                 return res.status(201).json({

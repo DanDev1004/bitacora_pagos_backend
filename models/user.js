@@ -69,17 +69,36 @@ User.subirImagen = (urlImagen, userId, result) => {
 User.obtenerPorId = (id, result) => {
 
     const sql = `
-    SELECT 
-        ID,
-        EMAIL,
-        NOMBRES,
-        APELLIDOS,
-        IMAGEN,
-        PASSWORD_USER
-    FROM
-        USUARIO
-    WHERE
-        ID = ?
+    SELECT
+    U.ID,
+    U.EMAIL,
+    U.NOMBRES,
+    U.APELLIDOS,
+    U.IMAGEN,
+    U.TELEFONO,
+    U.PASSWORD_USER,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'id', CONVERT(R.ID,char),
+            'name', R.NOMBRE,
+            'image', R.IMAGEN,
+            'route', R.ROUTE
+        )
+    ) AS ROLES
+FROM
+    USUARIO AS U
+INNER JOIN
+    USER_HAS_ROLES AS UHR
+ON
+    UHR.ID_USER = U.ID
+INNER JOIN
+    ROLES AS R
+ON
+    UHR.ID_ROL = R.ID
+WHERE
+    U.ID = ?
+GROUP BY
+    U.ID;
     `;
 
     db.query(
@@ -102,17 +121,37 @@ User.obtenerPorId = (id, result) => {
 User.obtenerPorEmail = (email, result) => {
 
     const sql = `
-    SELECT 
-        ID,
-        EMAIL,
-        NOMBRES,
-        APELLIDOS,
-        IMAGEN,
-        PASSWORD_USER
-    FROM
-        USUARIO
-    WHERE
-        EMAIL = ?
+    SELECT
+    U.ID,
+    U.EMAIL,
+    U.NOMBRES,
+    U.APELLIDOS,
+    U.IMAGEN,
+    U.TELEFONO,
+    U.PASSWORD_USER,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'id', CONVERT(R.ID,char),
+            'name', R.NOMBRE,
+            'image', R.IMAGEN,
+            'route', R.ROUTE
+        )
+    ) AS ROLES
+FROM
+    USUARIO AS U
+INNER JOIN
+    USER_HAS_ROLES AS UHR
+ON
+    UHR.ID_USER = U.ID
+INNER JOIN
+    ROLES AS R
+ON
+    UHR.ID_ROL = R.ID
+WHERE
+    EMAIL = ?
+GROUP BY
+    U.ID;
+
     `;
 
     db.query(
