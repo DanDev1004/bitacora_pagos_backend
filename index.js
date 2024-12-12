@@ -1,3 +1,6 @@
+//ECMAScript Modules(ESM) => import/export; especificacion en package.json "type":"module" => desde el 2015
+//CommonJS => require(); por defecto 
+
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -40,9 +43,6 @@ const upload = multer({
 
 //LLAMADO DE LAS RUTAS
 usersRoutes(app, upload);
-
-
-
 
 
 

@@ -97,7 +97,6 @@ module.exports = {
         });
     },
 
-
     login(req, res) {
         const email = req.body.email;
         const password = req.body.password;
@@ -154,6 +153,70 @@ module.exports = {
 
         });
 
-    }
+    },
+
+    async actualizarConImagen(req, res) {
+
+        const user = JSON.parse(req.body.user); //capturo todos los datos que envie el cliente
+
+        const files = req.files; //capturamos la imagen
+
+        if (files.length > 0) {
+            const path = `image_${Date.now()}`;
+            const url = await storage(files[0], path);
+
+            if (url != undefined && url != null) {
+                user.image = url;
+            }
+        }
+
+        User.actualizar(user, (err, data) => {
+
+        
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con la actualizacion del usuario',
+                    error: err
+                });
+            }
+
+            return res.status(201).json({
+                success: true,
+                message: 'El usuario se actualizo correctamente',
+                data: user
+            });
+        
+
+        });
+
+    },
+
+    async actualizarSinImagen(req, res) {
+
+        const user = req.body; 
+        console.log('DATA DEL CLIENTE ', user);
+
+        User.actualizarSinImagen(user, (err, data) => {
+
+        
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con el actualizar del usuario',
+                    error: err
+                });
+            }
+
+            return res.status(201).json({
+                success: true,
+                message: 'El usuario se actualizo correctamente',
+                data: user
+            });
+        
+
+        });
+
+    },
 }
 

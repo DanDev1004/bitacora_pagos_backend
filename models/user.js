@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const User = {};
 
 User.crear = async (usuario, result) => {
-    
+
     const hash = await bcrypt.hash(usuario.password, 10);
 
     const sql = `
@@ -24,47 +24,33 @@ User.crear = async (usuario, result) => {
     `;
 
     db.query
-    (
-        sql,
-        [
-            usuario.email,
-            usuario.nombres,
-            usuario.apellidos,
-            usuario.telefono,
-            usuario.imagen,
-            hash,
-            new Date(),
-            new Date()
-        ],
+        (
+            sql,
+            [
+                usuario.email,
+                usuario.nombres,
+                usuario.apellidos,
+                usuario.telefono,
+                usuario.imagen,
+                hash,
+                new Date(),
+                new Date()
+            ],
 
-        //callback
-        (err, res) => {
-            if (err) {
-                console.log('Error:', err);
-                result(err, null);
+            //callback
+            (err, res) => {
+                if (err) {
+                    console.log('Error:', err);
+                    result(err, null);
+                }
+                else {
+                    console.log('Id del nuevo usuario:', res.insertId);
+                    result(null, res.insertId);
+                }
             }
-            else {
-                console.log('Id del nuevo usuario:', res.insertId);
-                result(null, res.insertId);
-            }
-        }
-    )
+        )
 
 }
-
-User.subirImagen = (urlImagen, userId, result) => {
-    const sql = `UPDATE USUARIO SET IMAGEN = ? WHERE ID = ?`;
-
-    db.query(sql, [urlImagen, userId], (err, res) => {
-        if (err) {
-            console.log("Error al actualizar la imagen: ", err);
-            result(err, null);
-            return;
-        }
-        result(null, res);
-    });
-};
-
 
 User.obtenerPorId = (id, result) => {
 
@@ -169,6 +155,82 @@ GROUP BY
         }
     )
 
+}
+
+User.actualizar = (user, result) => {
+
+    const sql = `
+    UPDATE
+        USUARIO
+    SET
+        NOMBRES = ?,
+        APELLIDOS = ?,
+        TELEFONO = ?,
+        IMAGEN = ?,
+        updated_at = ?
+    WHERE
+        ID = ?
+    `;
+
+    db.query
+        (
+            sql,
+            [
+                usuario.nombres,
+                usuario.apellidos,
+                usuario.telefono,
+                usuario.imagen,
+                new Date(),
+                user.id
+            ],
+            (err, res) => {
+                if (err) {
+                    console.log('Error:', err);
+                    result(err, null);
+                }
+                else {
+                    console.log('Usuario actualizado:', user.id);
+                    result(null, user.id);
+                }
+            }
+        )
+}
+
+User.actualizarSinImagen = (user, result) => {
+
+    const sql = `
+    UPDATE
+        USUARIO
+    SET
+        NOMBRES = ?,
+        APELLIDOS = ?,
+        TELEFONO = ?,
+        updated_at = ?
+    WHERE
+        ID = ?
+    `;
+
+    db.query
+        (
+            sql,
+            [
+                usuario.nombres,
+                usuario.apellidos,
+                usuario.telefono,
+                new Date(),
+                user.id
+            ],
+            (err, res) => {
+                if (err) {
+                    console.log('Error:', err);
+                    result(err, null);
+                }
+                else {
+                    console.log('Usuario actualizado:', user.id);
+                    result(null, user.id);
+                }
+            }
+        )
 }
 
 
